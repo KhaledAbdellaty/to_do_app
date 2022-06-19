@@ -1,18 +1,17 @@
-
 import 'package:flutter/material.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:provider/provider.dart';
-import 'package:to_do_app/database/database_provider.dart';
-import 'package:to_do_app/providers/date_provider.dart';
-import 'package:to_do_app/providers/notification_provider.dart';
-import 'package:to_do_app/providers/theme_provider.dart';
-import 'package:to_do_app/model/theme_model.dart';
-import 'package:to_do_app/screens/homePage_screen.dart';
+import 'package:to_do_app/core/theme.dart';
+import 'package:to_do_app/features/tasks/view/screens/home_screen/home_screen.dart';
 
-Future<void> main() async{
+import 'features/awesome_notification/notification_init.dart';
+import 'features/tasks/controller/providers/date_provider.dart';
+import 'features/tasks/controller/providers/task_provider.dart';
+import 'features/tasks/controller/providers/theme_provider.dart';
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await GetStorage.init();
-  await NotificationProvider().initializeNotification();
+  MyNotifications.instance.init();
+
   runApp(const MyApp());
 }
 
@@ -24,22 +23,19 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider<TaskProvider>(
+          create: (context) => TaskProvider(),
+        ),
         ChangeNotifierProvider<ThemeProvider>(
-            create: (context) => ThemeProvider()),
+          create: (context) => ThemeProvider(),
+        ),
         ChangeNotifierProvider<DateProvider>(
-            create: (context)=> DateProvider()),
-        ChangeNotifierProvider<NotificationProvider>(
-            create: (context)=> NotificationProvider()),
-        ChangeNotifierProvider<DatabaseProvider>(
-            create: (context)=> DatabaseProvider.instance),
-
-
+          create: (context) => DateProvider(),
+        ),
       ],
-      child: Consumer<ThemeProvider>(
-        builder: (context, provider, child) {
-          return const MaterialAppWithTheme();
-        }
-      ),
+      child: Consumer<ThemeProvider>(builder: (context, provider, child) {
+        return const MaterialAppWithTheme();
+      }),
     );
   }
 }
@@ -56,8 +52,7 @@ class MaterialAppWithTheme extends StatelessWidget {
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
       theme: theme.isDark ? Themes.dark : Themes.light,
-      //darkTheme: theme.changeTheme(),
-      home: HomePage(),
+      home: const HomeScreen(),
     );
   }
 }
